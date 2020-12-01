@@ -22,21 +22,25 @@ class InputTxt extends Component {
         const {addList} = this.props.listData
         addList({
             title: this.state.inputStr,
+            status:false
         },)
         this.setState({inputStr:''})
     }
-    changeStatus=(event)=>{
-        const {setStatus} = this.props.listData
+    changeStatus1=(event)=>{
+        const {setStatus,setPageNum} = this.props.listData
         setStatus(event)
+        setPageNum(1)
+
     }
     render(){
+        const {sta} = this.props.listData
         return(
             <div>
-                <Input placeholder="Basic usage"  value={this.state.inputStr} onInput={this.changeInput} onPressEnter= {this.handleEnter} />
+                <Input placeholder="输入你想做的，点击回车！"  value={this.state.inputStr} onInput={this.changeInput} onPressEnter= {this.handleEnter} />
                 <div className='tagChoose'>
-                <Button type="primary" onClick={()=>this.changeStatus('all')}>全部</Button>
-                <Button type="default" onClick={()=>this.changeStatus('ok')}>已完成</Button>
-                <Button type="default" onClick={()=>this.changeStatus('no')}>未完成</Button>
+                <Button type={sta==='all'?"primary":"default"} onClick={()=>this.changeStatus1('all')}>全部</Button>
+                <Button type={sta==='ok' ?"primary":"default"} onClick={()=>this.changeStatus1('ok')}>已完成</Button>
+                <Button type={sta==='no' ?"primary":"default"} onClick={()=>this.changeStatus1('no')}>未完成</Button>
                 </div>
             </div>
         )

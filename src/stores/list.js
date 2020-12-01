@@ -1,10 +1,12 @@
 import { observable ,makeAutoObservable, action, computed} from 'mobx'
+import {message} from 'antd'
 
 class ListData {
     constructor() {
                 makeAutoObservable(this)
             }
     @observable sta = 'all'
+    @observable pageNum = 1
     @observable list=[
         {
             title: "Ant Design Title 0",
@@ -25,22 +27,40 @@ class ListData {
     ]
     @action
     addList=(da)=>{
-        this.list.push(da)
+        let has = this.list.some(item=>item.title===da.title)
+        if(!has){
+            this.list.push(da)
+        }else{
+            message.warning('已存在！')
+        }
     }
     @action
-    deleteList=(index)=>{
-        this.list.splice(index,1);
+    deleteList=(item)=>{
+        let key
+        this.list.forEach((it,i)=>{
+            if(it.title===item.title){
+                key =i
+            }
+        })
+        this.list.splice(key,1);
     }
     @action
     setStatus =(status)=>{
-        console.log(status)
         this.sta = status
-        console.log(status)
     }
     @action
-    changeListStatus = (index,status) =>{
-        console.log(this.list[index])
-        this.list[index].status = (status===2?true:false)
+    changeListStatus = (item,status) =>{
+        let key
+        this.list.forEach((it,i)=>{
+            if(it.title===item.title){
+                key =i
+            }
+        })
+        this.list[key].status = (status===2?true:false)
+    }
+    @action
+    setPageNum = (e) =>{
+        this.pageNum = e
     }
     @computed get newList(){
         const {sta} = this
@@ -52,7 +72,7 @@ class ListData {
             case 'ok':
                 newList = this.list.filter(item=>item.status)
                 break;
-            case 'NO':
+            case 'no':
                 newList = this.list.filter(item=>!item.status)
                 break;
             default:

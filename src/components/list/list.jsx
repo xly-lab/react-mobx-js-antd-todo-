@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { List } from "antd";
+import { List ,Pagination} from "antd";
 import { observer, inject } from "mobx-react";
 import "./list.css";
 
-import { CloseOutlined, SmileOutlined ,CheckCircleOutlined,CloseCircleOutlined} from "@ant-design/icons";
+import { CloseOutlined, SmileOutlined ,CheckCircleTwoTone,CloseCircleTwoTone} from "@ant-design/icons";
 
 
 
@@ -12,13 +12,41 @@ class Item extends Component {
     
     render() {
         const { item } = this.props;
-
-        return <a href="https://ant.design">
-        {item.title}
-    </a>
+        return  <a href="https://ant.design">{item.title}</a>
     }
-    }
+}
 
+@observer
+class RenderItem extends Component {
+    changeStatus2 = (index,status) =>{
+        const { changeListStatus } = this.props.listData
+        changeListStatus(index,status)
+    }
+    deleteListItem=(index)=>{
+        const { deleteList } = this.props.listData;
+        deleteList(index);
+    }
+    render() {
+        const { item,i, sta} = this.props;
+        return  <List.Item>
+        <SmileOutlined />
+        <List.Item.Meta
+            title={
+                <>
+            <a href="https://ant.design">
+                {item.title}====={i}
+            </a>
+            <Item item={item}></Item>
+            </>
+            }
+        />
+        {item.status ? 
+        <CheckCircleTwoTone twoToneColor="#52c41a" onClick={()=>this.changeStatus2(item,1)}/> :
+        <CloseCircleTwoTone twoToneColor="#eb2f96"  onClick={()=>this.changeStatus2(item,2)}/>}
+        {sta==='all'?<CloseOutlined onClick={()=>this.deleteListItem(item)} />:null}
+        </List.Item>
+    }
+}
 
 
 
@@ -29,52 +57,32 @@ class listLLL extends Component {
         super(props);
         this.state = {
         };
-        // const { setList } = this.props.ListData;
-        // setList(data);
     }
     componentDidMount() {
-    
     }
-
-    deleteListItem=(index)=>{
-        const { deleteList } = this.props.listData;
-        deleteList(index);
-    }
-    changeStatus = (index,status) =>{
-        const { changeListStatus } = this.props.listData
-        changeListStatus(index,status)
+    onChangePages=(e)=>{
+        const {setPageNum} = this.props.listData
+        setPageNum(e)
     }
     render() {
-        const { newList } = this.props.listData;
- 
+        const { newList,sta ,pageNum} = this.props.listData;
         //eslint-disable-next-line
-        // listData.list.length; 
+        let newShowList = newList.slice((pageNum-1)*10,pageNum*10)
         return (
         <div className="_list">
             <List
             itemLayout="horizontal"
-            dataSource={newList}
+            dataSource={newShowList}
             renderItem={(item, i) => (
-                <List.Item>
-                <SmileOutlined />
-                <List.Item.Meta
-                    title={
-                        <>
-                    <a href="https://ant.design">
-                        {item.title}====={i}
-                    </a>
-                    <Item item={item}></Item>
-                    </>
-                    }
-                    description="Ant Design, a design language for background applications, is refined by Ant UED Team"
-                />
-                {item.status?<CheckCircleOutlined onClick={()=>this.changeStatus(i,1)}/>:null}
-                {!item.status?<CloseCircleOutlined onClick={()=>this.changeStatus(i,2)}/>:null}
-                <CloseOutlined onClick={()=>this.deleteListItem(i)} />
-                </List.Item>
+                <RenderItem item={item} i={i} sta={sta} listData={this.props.listData}/>
             )}
             />
-            {/* {ListData.i} */}
+            <Pagination defaultCurrent={1} 
+                        current={pageNum}
+                        pageSizeOptions={'10'} 
+                        total={newList.length} 
+                        onChange={this.onChangePages}
+                        hideOnSinglePage={true}/>
         </div>
         );
     }
